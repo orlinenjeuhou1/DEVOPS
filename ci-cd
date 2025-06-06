@@ -1,0 +1,40 @@
+Parfait, allons-y étape par étape pour tester ton pipeline CI/CD :
+
+✅ Étape 1 : Créer une branche de test
+Dans ton terminal :
+
+bash
+Copier le code
+git checkout -b feature/test-ci
+✅ Étape 2 : Faire une petite modification
+Tu peux par exemple modifier un fichier dans le frontend :
+
+bash
+Copier le code
+echo "// test CI trigger" >> client/src/App.jsx
+Puis commit :
+
+bash
+Copier le code
+git add client/src/App.jsx
+git commit -m "Test CI pipeline"
+git push origin feature/test-ci
+✅ Étape 3 : Créer une Pull Request
+Va sur GitHub ici :
+👉 https://github.com/orlinenjeuhou1/DEVOPS
+
+Clique sur “Compare & pull request”
+
+Base branch = dev ← compare avec feature/test-ci
+
+Crée la PR
+
+Résultat attendu : le workflow CI Pipeline démarre automatiquement (dans l’onglet "Actions").
+
+✅ Étape 4 : Merge dans dev
+Si le CI passe ✅ :
+
+Clique sur "Merge pull request"
+
+Cela déclenchera automatiquement le CD (cd.yml)
+

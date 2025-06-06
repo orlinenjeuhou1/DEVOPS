@@ -1,15 +1,66 @@
-
 name: CI Pipeline
+
 on:
   pull_request:
     branches: [dev]
+
 jobs:
-  build:
+  build-and-test:
     runs-on: ubuntu-latest
+
+    services:
+      db:
+        image: postgres:13
+        env:
+          POSTGRES_DB: devops_db
+          POSTGRES_USER: devops_user
+          POSTGRES_PASSWORD: devops_pass
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      POSTGRES_DB: devops_db
+      POSTGRES_USER: devops_user
+      POSTGRES_PASSWORD: devops_pass
+      POSTGRES_HOST: db
+      DJANGO_SECRET_KEY: un_secret_costaud
+      DJANGO_DEBUG: True
+
     steps:
-      - uses: actions/checkout@v3
-      - name: Build Docker images
-        run: docker-compose build
-      - name: Run tests (si tests présents)
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js (React client)
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Build React app
         run: |
-          if [ -d "tests" ]; then pytest tests/; fi
+          cd client
+          npm install
+          npm run build
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install Poetry and backend dependencies
+        run: |
+          pip install poetry
+          cd server
+          poetry install
+
+      - name: Run Django tests
+        run: |
+          cd server
+          poetry run python manage.py migrate
+          poetry run python manage.py test
+
+
